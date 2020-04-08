@@ -16,7 +16,7 @@ public class OfferingsFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         OfferingsViewModel offeringsViewModel = new ViewModelProvider(this).get(OfferingsViewModel.class);
         View root = inflater.inflate(R.layout.fragment_offerings, container, false);
-        final TextView textView = root.findViewById(R.id.text_notifications);
+        final TextView textView = root.findViewById(R.id.text_offerings);
         offeringsViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
