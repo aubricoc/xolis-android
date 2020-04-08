@@ -12,13 +12,13 @@
 
     <fragment
         android:id="@+id/navigation_map"
-        android:name="cat.aubricoc.xolis.ui.dashboard.DashboardFragment"
+        android:name="cat.aubricoc.xolis.ui.map.MapFragment"
         android:label="@string/section_map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/navigation_offerings"
-        android:name="cat.aubricoc.xolis.ui.notifications.NotificationsFragment"
+        android:name="cat.aubricoc.xolis.ui.offerings.OfferingsFragment"
         android:label="@string/section_offerings"
         tools:layout="@layout/fragment_offerings" />
 </navigation>
