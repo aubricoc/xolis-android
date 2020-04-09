@@ -27,9 +27,14 @@ public class WishListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         model.getWishes().observe(getViewLifecycleOwner(), adapter::setWishes);
+        WishClient.getInstance().getWishes(model::setWishes);
 
-        root.findViewById(R.id.add_wish).setOnClickListener(v -> model.refresh());
+        root.findViewById(R.id.add_wish).setOnClickListener(view -> createNewWish());
 
         return root;
+    }
+
+    private void createNewWish() {
+        throw new UnsupportedOperationException();
     }
 }
