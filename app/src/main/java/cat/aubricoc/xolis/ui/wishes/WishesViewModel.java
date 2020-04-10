@@ -3,15 +3,16 @@ package cat.aubricoc.xolis.ui.wishes;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+import cat.aubricoc.xolis.server.model.Wish;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WishListViewModel extends ViewModel {
+public class WishesViewModel extends ViewModel {
 
-    private MutableLiveData<List<Wish>> wishes;
+    private final MutableLiveData<List<Wish>> wishes;
 
-    public WishListViewModel() {
+    public WishesViewModel() {
         wishes = new MutableLiveData<>(new ArrayList<>());
     }
 

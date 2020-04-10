@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.utils;
+package cat.aubricoc.xolis.server.utils;
 
 public interface Callback<T> {
 

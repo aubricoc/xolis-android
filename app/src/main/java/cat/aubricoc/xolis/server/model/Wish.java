@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui.wishes;
+package cat.aubricoc.xolis.server.model;
 
 public class Wish {
 

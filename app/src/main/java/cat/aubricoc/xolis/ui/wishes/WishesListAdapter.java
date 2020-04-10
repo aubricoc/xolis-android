@@ -7,11 +7,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import cat.aubricoc.xolis.R;
+import cat.aubricoc.xolis.server.model.Wish;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class WishListAdapter extends RecyclerView.Adapter<WishListAdapter.ViewHolder> {
+public class WishesListAdapter extends RecyclerView.Adapter<WishesListAdapter.ViewHolder> {
 
     private List<Wish> wishes = new ArrayList<>();
 

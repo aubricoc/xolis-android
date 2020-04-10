@@ -1,7 +1,7 @@
-package cat.aubricoc.xolis.utils.network;
+package cat.aubricoc.xolis.server.utils;
 
 import android.util.Log;
-import cat.aubricoc.xolis.XolisApp;
+import cat.aubricoc.xolis.XolisApplication;
 import cat.aubricoc.xolis.XolisContext;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
@@ -73,7 +73,7 @@ public class RequestBuilder<T> {
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(XolisApp.TAG, "Request failed: " + error.getMessage());
+            Log.e(XolisApplication.TAG, "Request failed: " + error.getMessage());
         }
     }
 

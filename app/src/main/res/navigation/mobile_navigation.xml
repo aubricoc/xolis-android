@@ -2,13 +2,13 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    app:startDestination="@+id/navigation_wishes">
+    app:startDestination="@id/navigation_wishes">
 
     <fragment
         android:id="@+id/navigation_wishes"
-        android:name="cat.aubricoc.xolis.ui.wishes.WishListFragment"
+        android:name="cat.aubricoc.xolis.ui.wishes.WishesFragment"
         android:label="@string/section_wishes"
-        tools:layout="@layout/fragment_wish_list" />
+        tools:layout="@layout/fragment_wishes" />
 
     <fragment
         android:id="@+id/navigation_map"

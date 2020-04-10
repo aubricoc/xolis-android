@@ -11,22 +11,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cat.aubricoc.xolis.R;
-import cat.aubricoc.xolis.activity.CreateWishActivity;
-import cat.aubricoc.xolis.service.WishService;
+import cat.aubricoc.xolis.core.service.WishService;
+import cat.aubricoc.xolis.ui.wishes.create.CreateWishActivity;
 
-public class WishListFragment extends Fragment {
+public class WishesFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_wish_list, container, false);
+        View root = inflater.inflate(R.layout.fragment_wishes, container, false);
 
-        WishListViewModel model = new ViewModelProvider(this).get(WishListViewModel.class);
+        WishesViewModel model = new ViewModelProvider(this).get(WishesViewModel.class);
 
         RecyclerView recyclerView = root.findViewById(R.id.wish_list);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
-        WishListAdapter adapter = new WishListAdapter();
+        WishesListAdapter adapter = new WishesListAdapter();
         recyclerView.setAdapter(adapter);
 
         model.getWishes().observe(getViewLifecycleOwner(), adapter::setWishes);

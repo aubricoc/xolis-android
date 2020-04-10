@@ -2,7 +2,7 @@ package cat.aubricoc.xolis;
 
 import android.app.Application;
 
-public class XolisApp extends Application {
+public class XolisApplication extends Application {
 
     public static final String TAG = "xolis";
 

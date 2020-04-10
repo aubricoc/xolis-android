@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.activity;
+package cat.aubricoc.xolis.ui;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,11 +15,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        BottomNavigationView navView = findViewById(R.id.nav_view);
+
+        BottomNavigationView navView = findViewById(R.id.main_menu);
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.navigation_wishes, R.id.navigation_map, R.id.navigation_offerings)
                 .build();
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.nav_host_fragment);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
         if (navHostFragment != null) {
             NavController navController = navHostFragment.getNavController();
             NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);

@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.activity;
+package cat.aubricoc.xolis.ui.wishes.create;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -7,7 +7,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import cat.aubricoc.xolis.R;
-import cat.aubricoc.xolis.service.WishService;
+import cat.aubricoc.xolis.core.service.WishService;
 
 import static androidx.appcompat.app.AppCompatDelegate.FEATURE_SUPPORT_ACTION_BAR;
 
