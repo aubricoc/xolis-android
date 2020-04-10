@@ -26,20 +26,30 @@ public class RequestBuilder<T> {
     private final int method;
     private final String url;
     private final Type type;
+    private Object body;
     private Response.Listener<T> callback;
 
     private RequestBuilder(int method, String url, Type type) {
         this.method = method;
-        this.url = url;
+        this.url = XolisContext.getServerUrl() + url;
         this.type = type;
     }
 
-    public static <V> RequestBuilder<V> newGetObjectRequest(String url, Class<V> type) {
-        return new RequestBuilder<>(Request.Method.GET, url, TypeToken.get(type).getType());
+    public static <V> RequestBuilder<V> newGetObjectRequest(String urlPath, Class<V> type) {
+        return new RequestBuilder<>(Request.Method.GET, urlPath, TypeToken.get(type).getType());
     }
 
-    public static <V> RequestBuilder<List<V>> newGetListRequest(String url, Class<V> type) {
-        return new RequestBuilder<>(Request.Method.GET, url, TypeToken.getParameterized(List.class, type).getType());
+    public static <V> RequestBuilder<List<V>> newGetListRequest(String urlPath, Class<V> type) {
+        return new RequestBuilder<>(Request.Method.GET, urlPath, TypeToken.getParameterized(List.class, type).getType());
+    }
+
+    public static RequestBuilder<Void> newPostRequest(String urlPath) {
+        return new RequestBuilder<>(Request.Method.POST, urlPath, null);
+    }
+
+    public RequestBuilder<T> body(Object body) {
+        this.body = body;
+        return this;
     }
 
     public RequestBuilder<T> callback(Response.Listener<T> callback) {
@@ -48,8 +58,15 @@ public class RequestBuilder<T> {
     }
 
     public void execute() {
-        GsonRequest request = new GsonRequest();
+        GsonRequest request = new GsonRequest(parseBody());
         XolisContext.getRequestQueue().add(request);
+    }
+
+    private String parseBody() {
+        if (body == null) {
+            return null;
+        }
+        return GSON.toJson(body);
     }
 
     private static class ErrorListener implements Response.ErrorListener {
@@ -62,8 +79,8 @@ public class RequestBuilder<T> {
 
     private class GsonRequest extends JsonRequest<T> {
 
-        private GsonRequest() {
-            super(method, url, null, callback, ERROR_LISTENER);
+        private GsonRequest(String requestBody) {
+            super(method, url, requestBody, callback, ERROR_LISTENER);
         }
 
         @Override

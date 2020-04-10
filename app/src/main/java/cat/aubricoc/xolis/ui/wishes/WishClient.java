@@ -10,6 +10,7 @@ import java.util.List;
 public class WishClient {
 
     private static final WishClient INSTANCE = new WishClient();
+    public static final String RESOURCE = "/wishes";
 
     private WishClient() {
         super();
@@ -20,10 +21,12 @@ public class WishClient {
     }
 
     public void getWishes(Callback<List<Wish>> callback) {
-
         Log.i(XolisApp.TAG, "Call to get wishes...");
-        String url = "http://192.168.1.132:8080/wishes";
+        RequestBuilder.newGetListRequest(RESOURCE, Wish.class).callback(callback::execute).execute();
+    }
 
-        RequestBuilder.newGetListRequest(url, Wish.class).callback(callback::execute).execute();
+    public void saveWish(Wish wish, Callback<Void> callback) {
+        Log.i(XolisApp.TAG, "Call to save a wish...");
+        RequestBuilder.newPostRequest(RESOURCE).body(wish).callback(callback::execute).execute();
     }
 }

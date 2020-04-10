@@ -6,7 +6,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/wish_title"
+        android:id="@+id/create_wish_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 </LinearLayout>

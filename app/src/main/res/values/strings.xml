@@ -1,6 +1,11 @@
 <resources>
     <string name="app_name">xolis</string>
+    <string name="server_url" translatable="false">http://192.168.1.132:8080</string>
     <string name="section_wishes">Wishes</string>
     <string name="section_map">Map</string>
     <string name="section_offerings">Offerings</string>
+    <string name="create_wish_title">Request your wish</string>
+    <string name="create_wish_name_hint">Write your wish…</string>
+    <string name="create_wish_name_required">You need to write your wish</string>
+    <string name="create_wish_save">Save</string>
 </resources>

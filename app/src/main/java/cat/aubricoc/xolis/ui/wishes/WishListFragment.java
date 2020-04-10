@@ -1,5 +1,6 @@
 package cat.aubricoc.xolis.ui.wishes;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cat.aubricoc.xolis.R;
+import cat.aubricoc.xolis.activity.CreateWishActivity;
+import cat.aubricoc.xolis.service.WishService;
 
 public class WishListFragment extends Fragment {
 
@@ -27,7 +30,7 @@ public class WishListFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         model.getWishes().observe(getViewLifecycleOwner(), adapter::setWishes);
-        WishClient.getInstance().getWishes(model::setWishes);
+        WishService.getInstance().getWishes(model::setWishes);
 
         root.findViewById(R.id.add_wish).setOnClickListener(view -> createNewWish());
 
@@ -35,6 +38,6 @@ public class WishListFragment extends Fragment {
     }
 
     private void createNewWish() {
-        throw new UnsupportedOperationException();
+        startActivity(new Intent(getContext(), CreateWishActivity.class));
     }
 }
