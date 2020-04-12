@@ -15,4 +15,5 @@
     <string name="register_confirm_password_hint">Repeat password</string>
     <string name="register_save">Register as user</string>
     <string name="register_username_invalid"><![CDATA[Allowed only simple characters, numbers & underscore]]></string>
+    <string name="register_username_already_used">This username is used by another user</string>
 </resources>

@@ -1,6 +1,5 @@
 package cat.aubricoc.xolis.server.utils;
 
-import android.util.Log;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Preferences;
 import com.android.volley.AuthFailureError;
@@ -8,7 +7,6 @@ import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.JsonRequest;
 import com.google.gson.Gson;
@@ -17,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,19 +23,19 @@ import java.util.Map;
 public class RequestBuilder<T> {
 
     public static final Gson GSON = new Gson();
-    private static final ErrorListener ERROR_LISTENER = new ErrorListener();
 
     private final int method;
     private final String url;
     private final Type type;
+    private final HttpErrorListener errorListener;
     private Object body;
     private Response.Listener<T> callback;
-    private Response.ErrorListener errorListener = ERROR_LISTENER;
 
     private RequestBuilder(int method, String url, Type type) {
         this.method = method;
         this.url = Xolis.getServerUrl() + url;
         this.type = type;
+        this.errorListener = new HttpErrorListener();
     }
 
     public static <V> RequestBuilder<V> newGetObjectRequest(String urlPath, Class<V> type) {
@@ -65,8 +64,8 @@ public class RequestBuilder<T> {
         return this;
     }
 
-    public RequestBuilder<T> errorListener(Response.ErrorListener errorListener) {
-        this.errorListener = errorListener;
+    public RequestBuilder<T> errorHandler(HttpErrorHandler... handlers) {
+        this.errorListener.addHandlers(Arrays.asList(handlers));
         return this;
     }
 
@@ -80,18 +79,6 @@ public class RequestBuilder<T> {
             return null;
         }
         return GSON.toJson(body);
-    }
-
-    private static class ErrorListener implements Response.ErrorListener {
-
-        @Override
-        public void onErrorResponse(VolleyError error) {
-            int statusCode = error.networkResponse.statusCode;
-            Log.e(Xolis.TAG, "Request failed (" + statusCode + "): " + error.getMessage());
-            if (statusCode == 401) {
-                Xolis.goToAuthentication();
-            }
-        }
     }
 
     private class GsonRequest extends JsonRequest<T> {

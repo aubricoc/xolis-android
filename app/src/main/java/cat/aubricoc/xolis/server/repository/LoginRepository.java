@@ -5,6 +5,7 @@ import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.server.model.LoginSuccess;
 import cat.aubricoc.xolis.server.model.User;
+import cat.aubricoc.xolis.server.utils.HttpErrorHandler;
 import cat.aubricoc.xolis.server.utils.RequestBuilder;
 
 public class LoginRepository {
@@ -25,12 +26,7 @@ public class LoginRepository {
         RequestBuilder.newPostRequest(RESOURCE, LoginSuccess.class)
                 .body(user)
                 .callback(callback::execute)
-                .errorListener(error -> {
-                    int statusCode = error.networkResponse.statusCode;
-                    if (statusCode == 401) {
-                        noLoggedCallback.execute(null);
-                    }
-                })
+                .errorHandler(new HttpErrorHandler(401, noLoggedCallback))
                 .execute();
     }
 }
