@@ -16,4 +16,8 @@
     <string name="register_save">Register as user</string>
     <string name="register_username_invalid"><![CDATA[Allowed only simple characters, numbers & underscore]]></string>
     <string name="register_username_already_used">This username is used by another user</string>
+    <string name="login_username_hint">Your username</string>
+    <string name="login_password_hint">Your password</string>
+    <string name="login_save">Login</string>
+    <string name="login_password_failed">Username or password are incorrect</string>
 </resources>

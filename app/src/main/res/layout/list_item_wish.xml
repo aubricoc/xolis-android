@@ -2,11 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="100dp"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingVertical="1dp">
 
     <TextView
         android:id="@+id/create_wish_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:background="@color/primaryLightColor"
+        android:gravity="center_vertical"
+        android:minHeight="100dp"
+        android:paddingHorizontal="@dimen/activity_horizontal_margin"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
+        android:textColor="@color/primaryTextColor" />
 </LinearLayout>
