@@ -1,18 +1,20 @@
 package cat.aubricoc.xolis.server.model;
 
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-public class Wish {
+public class LoginSuccess {
 
-    private String name;
+    @SerializedName("access_token")
+    private String accessToken;
 
-    public String getName() {
-        return name;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui.wishes;
+package cat.aubricoc.xolis.ui.main.wishes;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

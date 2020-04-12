@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui;
+package cat.aubricoc.xolis.ui.main;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

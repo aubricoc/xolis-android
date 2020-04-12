@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui.offerings;
+package cat.aubricoc.xolis.ui.main.offerings;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel;
 
 public class OfferingsViewModel extends ViewModel {
 
-    private MutableLiveData<String> mText;
+    private final MutableLiveData<String> mText;
 
     public OfferingsViewModel() {
         mText = new MutableLiveData<>();

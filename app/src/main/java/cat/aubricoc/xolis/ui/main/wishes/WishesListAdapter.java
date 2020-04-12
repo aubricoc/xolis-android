@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui.wishes;
+package cat.aubricoc.xolis.ui.main.wishes;
 
 import android.view.LayoutInflater;
 import android.view.View;

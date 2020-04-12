@@ -1,8 +1,9 @@
 package cat.aubricoc.xolis.server.utils;
 
 import android.util.Log;
-import cat.aubricoc.xolis.XolisApplication;
-import cat.aubricoc.xolis.XolisContext;
+import cat.aubricoc.xolis.Xolis;
+import cat.aubricoc.xolis.core.utils.Preferences;
+import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkResponse;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
@@ -16,7 +17,9 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestBuilder<T> {
 
@@ -28,10 +31,11 @@ public class RequestBuilder<T> {
     private final Type type;
     private Object body;
     private Response.Listener<T> callback;
+    private Response.ErrorListener errorListener = ERROR_LISTENER;
 
     private RequestBuilder(int method, String url, Type type) {
         this.method = method;
-        this.url = XolisContext.getServerUrl() + url;
+        this.url = Xolis.getServerUrl() + url;
         this.type = type;
     }
 
@@ -47,6 +51,10 @@ public class RequestBuilder<T> {
         return new RequestBuilder<>(Request.Method.POST, urlPath, null);
     }
 
+    public static <V> RequestBuilder<V> newPostRequest(String urlPath, Class<V> type) {
+        return new RequestBuilder<>(Request.Method.POST, urlPath, TypeToken.get(type).getType());
+    }
+
     public RequestBuilder<T> body(Object body) {
         this.body = body;
         return this;
@@ -57,9 +65,14 @@ public class RequestBuilder<T> {
         return this;
     }
 
+    public RequestBuilder<T> errorListener(Response.ErrorListener errorListener) {
+        this.errorListener = errorListener;
+        return this;
+    }
+
     public void execute() {
         GsonRequest request = new GsonRequest(parseBody());
-        XolisContext.getRequestQueue().add(request);
+        Xolis.getRequestQueue().add(request);
     }
 
     private String parseBody() {
@@ -73,14 +86,18 @@ public class RequestBuilder<T> {
 
         @Override
         public void onErrorResponse(VolleyError error) {
-            Log.e(XolisApplication.TAG, "Request failed: " + error.getMessage());
+            int statusCode = error.networkResponse.statusCode;
+            Log.e(Xolis.TAG, "Request failed (" + statusCode + "): " + error.getMessage());
+            if (statusCode == 401) {
+                Xolis.goToAuthentication();
+            }
         }
     }
 
     private class GsonRequest extends JsonRequest<T> {
 
         private GsonRequest(String requestBody) {
-            super(method, url, requestBody, callback, ERROR_LISTENER);
+            super(method, url, requestBody, callback, errorListener);
         }
 
         @Override
@@ -92,6 +109,26 @@ public class RequestBuilder<T> {
             } catch (UnsupportedEncodingException | JsonParseException e) {
                 return Response.error(new ParseError(e));
             }
+        }
+
+        @Override
+        protected void deliverResponse(T response) {
+            callback.onResponse(response);
+        }
+
+        @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+            Map<String, String> originalHeaders = super.getHeaders();
+            String token = Xolis.getPreferences().get(Preferences.ACCESS_TOKEN);
+            if (token == null) {
+                return originalHeaders;
+            }
+            HashMap<String, String> headers = new HashMap<>();
+            if (originalHeaders != null) {
+                headers.putAll(originalHeaders);
+            }
+            headers.put("Authorization", "Bearer " + token);
+            return headers;
         }
     }
 }

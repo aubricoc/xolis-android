@@ -1,4 +1,4 @@
-package cat.aubricoc.xolis.ui.wishes;
+package cat.aubricoc.xolis.ui.main.wishes;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cat.aubricoc.xolis.R;
 import cat.aubricoc.xolis.core.service.WishService;
-import cat.aubricoc.xolis.ui.wishes.create.CreateWishActivity;
+import cat.aubricoc.xolis.ui.main.wishes.create.CreateWishActivity;
 
 public class WishesFragment extends Fragment {
 
