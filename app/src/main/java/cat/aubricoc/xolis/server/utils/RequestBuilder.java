@@ -106,7 +106,7 @@ public class RequestBuilder<T> {
         @Override
         public Map<String, String> getHeaders() throws AuthFailureError {
             Map<String, String> originalHeaders = super.getHeaders();
-            String token = Xolis.getPreferences().get(Preferences.ACCESS_TOKEN);
+            String token = Xolis.getPreferences().getString(Preferences.ACCESS_TOKEN);
             if (token == null) {
                 return originalHeaders;
             }

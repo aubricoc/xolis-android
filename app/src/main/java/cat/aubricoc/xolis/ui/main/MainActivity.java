@@ -2,10 +2,8 @@ package cat.aubricoc.xolis.ui.main;
 
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -15,7 +13,9 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import cat.aubricoc.xolis.R;
 import cat.aubricoc.xolis.Xolis;
+import cat.aubricoc.xolis.core.utils.Preferences;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.Objects;
 
@@ -23,56 +23,87 @@ public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private NavController bottomNavController;
+    private DrawerLayout sidebarContainer;
+    private NavigationView sidebar;
+    private MenuItem menuLogin;
+    private MenuItem menuLogout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        toolbar = findViewById(R.id.action_bar);
-        setSupportActionBar(toolbar);
-
-        DrawerLayout drawerLayout = findViewById(R.id.main_sidebar_container);
-        toolbar.setNavigationOnClickListener(v -> drawerLayout.openDrawer(Gravity.START));
-
-        BottomNavigationView navView = findViewById(R.id.main_menu);
-        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
-        if (navHostFragment != null) {
-            bottomNavController = navHostFragment.getNavController();
-            NavigationUI.setupWithNavController(navView, bottomNavController);
-            bottomNavController.addOnDestinationChangedListener((controller, destination, arguments) -> setToolbarTitle(destination));
-        }
-    }
-
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        setToolbarTitle(bottomNavController.getCurrentDestination());
+        prepareToolbar();
+        prepareSidebar();
+        prepareBottomNavigation();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (Xolis.isAuthenticated()) {
-            findViewById(R.id.main_menu_login).setVisibility(View.GONE);
-            findViewById(R.id.main_menu_logout).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.main_menu_login).setVisibility(View.VISIBLE);
-            findViewById(R.id.main_menu_logout).setVisibility(View.GONE);
-        }
+        setToolbarTitle(bottomNavController.getCurrentDestination());
+        showOrHideMenus();
     }
 
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.main_menu_login:
-                Xolis.goToAuthentication();
-                break;
-            case R.id.main_menu_logout:
-                Xolis.clearAuthentication();
-                break;
+    public void onBackPressed() {
+        if (sidebarContainer.isDrawerOpen(sidebar)) {
+            sidebarContainer.closeDrawer(sidebar);
+        } else {
+            finish();
         }
-        return false;
+    }
+
+    private void prepareToolbar() {
+        toolbar = findViewById(R.id.action_bar);
+        setSupportActionBar(toolbar);
+    }
+
+    private void prepareSidebar() {
+        sidebarContainer = findViewById(R.id.main_sidebar_container);
+        toolbar.setNavigationOnClickListener(v -> sidebarContainer.openDrawer(Gravity.START));
+        sidebar = findViewById(R.id.main_sidebar);
+        prepareSidebarMenu();
+    }
+
+    private void prepareSidebarMenu() {
+        Menu menu = sidebar.getMenu();
+        menuLogin = menu.findItem(R.id.main_menu_login);
+        menuLogout = menu.findItem(R.id.main_menu_logout);
+        menuLogin.setOnMenuItemClickListener(v -> {
+            Xolis.goToAuthentication();
+            return false;
+        });
+        menuLogout.setOnMenuItemClickListener(v -> {
+            Xolis.clearAuthentication();
+            showOrHideMenus();
+            return false;
+        });
+    }
+
+    private void prepareBottomNavigation() {
+        BottomNavigationView navView = findViewById(R.id.main_menu);
+        NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        bottomNavController = Objects.requireNonNull(navHostFragment).getNavController();
+        Integer lastDestination = Xolis.getPreferences().getInteger(Preferences.LAST_MAIN_VIEW);
+        if (lastDestination != null) {
+            bottomNavController.navigate(lastDestination);
+        }
+        bottomNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            setToolbarTitle(destination);
+            Xolis.getPreferences().store(Preferences.LAST_MAIN_VIEW, destination.getId());
+        });
+        NavigationUI.setupWithNavController(navView, bottomNavController);
+    }
+
+    private void showOrHideMenus() {
+        if (Xolis.isAuthenticated()) {
+            menuLogin.setVisible(false);
+            menuLogout.setVisible(true);
+        } else {
+            menuLogin.setVisible(true);
+            menuLogout.setVisible(false);
+        }
     }
 
     private void setToolbarTitle(NavDestination bottomNavDestination) {
