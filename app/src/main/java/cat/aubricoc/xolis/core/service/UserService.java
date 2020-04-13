@@ -39,15 +39,31 @@ public class UserService {
 
     private void login(User user, Callback<Boolean> callback) {
         LoginRepository.getInstance().add(user, response -> {
-            storeToken(response.getAccessToken());
+            storeAuthentication(response.getAccessToken(), response.getUsername());
             callback.execute(true);
         }, v -> {
-            storeToken(null);
+            clearAuthentication();
             callback.execute(false);
         });
     }
 
-    private void storeToken(String accessToken) {
+    public User getAuthenticatedUser() {
+        String username = Xolis.getPreferences().getString(Preferences.AUTH_USERNAME);
+        if (username == null) {
+            return null;
+        }
+        User user = new User();
+        user.setUsername(username);
+        return user;
+    }
+
+    private void storeAuthentication(String accessToken, String username) {
         Xolis.getPreferences().store(Preferences.ACCESS_TOKEN, accessToken);
+        Xolis.getPreferences().store(Preferences.AUTH_USERNAME, username);
+    }
+
+    public void clearAuthentication() {
+        Xolis.getPreferences().clear(Preferences.ACCESS_TOKEN);
+        Xolis.getPreferences().clear(Preferences.AUTH_USERNAME);
     }
 }

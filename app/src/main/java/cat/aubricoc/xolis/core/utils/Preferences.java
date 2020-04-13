@@ -6,7 +6,8 @@ import android.content.SharedPreferences;
 public class Preferences {
 
     public static final String ACCESS_TOKEN = "xolis_secured_access_token";
-    public static final String LAST_MAIN_VIEW = "xolis_last_main_navigation_id";
+    public static final String AUTH_USERNAME = "xolis_auth_username";
+    public static final String LAST_MAIN_DESTINATION = "xolis_last_main_destination";
 
     private static final String PREFERENCES_KEY = "xolis_preferences";
 

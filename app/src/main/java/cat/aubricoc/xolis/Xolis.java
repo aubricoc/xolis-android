@@ -44,12 +44,4 @@ public class Xolis {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         applicationContext.startActivity(intent);
     }
-
-    public static boolean isAuthenticated() {
-        return getPreferences().has(Preferences.ACCESS_TOKEN);
-    }
-
-    public static void clearAuthentication() {
-        getPreferences().clear(Preferences.ACCESS_TOKEN);
-    }
 }

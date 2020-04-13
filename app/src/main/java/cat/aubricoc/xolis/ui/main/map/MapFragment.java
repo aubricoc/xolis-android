@@ -9,6 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import cat.aubricoc.xolis.R;
+import cat.aubricoc.xolis.Xolis;
+import cat.aubricoc.xolis.core.utils.Preferences;
 
 public class MapFragment extends Fragment {
 
@@ -19,5 +21,11 @@ public class MapFragment extends Fragment {
         final TextView textView = root.findViewById(R.id.text_map);
         mapViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Xolis.getPreferences().store(Preferences.LAST_MAIN_DESTINATION, R.id.navigation_map);
     }
 }

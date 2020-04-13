@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class LoginSuccess {
 
+    private String username;
     @SerializedName("access_token")
     private String accessToken;
 
@@ -15,6 +16,14 @@ public class LoginSuccess {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     @Override

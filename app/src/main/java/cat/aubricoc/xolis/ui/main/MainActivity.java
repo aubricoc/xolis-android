@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -13,9 +15,12 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import cat.aubricoc.xolis.R;
 import cat.aubricoc.xolis.Xolis;
+import cat.aubricoc.xolis.core.service.UserService;
 import cat.aubricoc.xolis.core.utils.Preferences;
+import cat.aubricoc.xolis.server.model.User;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
@@ -27,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView sidebar;
     private MenuItem menuLogin;
     private MenuItem menuLogout;
+    private TextView sidebarTitle;
+    private TextView sidebarSubtitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         setToolbarTitle(bottomNavController.getCurrentDestination());
-        showOrHideMenus();
+        prepareAuthData();
     }
 
     @Override
@@ -63,20 +70,23 @@ public class MainActivity extends AppCompatActivity {
         sidebarContainer = findViewById(R.id.main_sidebar_container);
         toolbar.setNavigationOnClickListener(v -> sidebarContainer.openDrawer(Gravity.START));
         sidebar = findViewById(R.id.main_sidebar);
+        View headerView = sidebar.getHeaderView(0);
+        sidebarTitle = headerView.findViewById(R.id.main_sidebar_title);
+        sidebarSubtitle = headerView.findViewById(R.id.main_sidebar_subtitle);
         prepareSidebarMenu();
     }
 
     private void prepareSidebarMenu() {
         Menu menu = sidebar.getMenu();
         menuLogin = menu.findItem(R.id.main_menu_login);
-        menuLogout = menu.findItem(R.id.main_menu_logout);
         menuLogin.setOnMenuItemClickListener(v -> {
             Xolis.goToAuthentication();
             return false;
         });
+        menuLogout = menu.findItem(R.id.main_menu_logout);
         menuLogout.setOnMenuItemClickListener(v -> {
-            Xolis.clearAuthentication();
-            showOrHideMenus();
+            UserService.getInstance().clearAuthentication();
+            prepareAuthData();
             return false;
         });
     }
@@ -85,24 +95,26 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView navView = findViewById(R.id.main_menu);
         NavHostFragment navHostFragment = (NavHostFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
         bottomNavController = Objects.requireNonNull(navHostFragment).getNavController();
-        Integer lastDestination = Xolis.getPreferences().getInteger(Preferences.LAST_MAIN_VIEW);
+        Integer lastDestination = Xolis.getPreferences().getInteger(Preferences.LAST_MAIN_DESTINATION);
         if (lastDestination != null) {
             bottomNavController.navigate(lastDestination);
         }
-        bottomNavController.addOnDestinationChangedListener((controller, destination, arguments) -> {
-            setToolbarTitle(destination);
-            Xolis.getPreferences().store(Preferences.LAST_MAIN_VIEW, destination.getId());
-        });
+        bottomNavController.addOnDestinationChangedListener((controller, destination, arguments) -> setToolbarTitle(destination));
         NavigationUI.setupWithNavController(navView, bottomNavController);
     }
 
-    private void showOrHideMenus() {
-        if (Xolis.isAuthenticated()) {
-            menuLogin.setVisible(false);
-            menuLogout.setVisible(true);
+    private void prepareAuthData() {
+        User user = UserService.getInstance().getAuthenticatedUser();
+        if (user == null) {
+            menuLogin.setEnabled(true);
+            menuLogout.setEnabled(false);
+            sidebarTitle.setText(StringUtils.EMPTY);
+            sidebarSubtitle.setText(StringUtils.EMPTY);
         } else {
-            menuLogin.setVisible(true);
-            menuLogout.setVisible(false);
+            menuLogin.setEnabled(false);
+            menuLogout.setEnabled(true);
+            sidebarTitle.setText(user.getUsername());
+            sidebarSubtitle.setText(user.getEmail());
         }
     }
 
