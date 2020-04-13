@@ -26,4 +26,12 @@ public class Preferences {
     public String get(String key) {
         return sharedPreferences.getString(key, null);
     }
+
+    public boolean has(String key) {
+        return get(key) != null;
+    }
+
+    public void clear(String key) {
+        store(key, null);
+    }
 }

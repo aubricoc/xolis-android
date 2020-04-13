@@ -20,4 +20,6 @@
     <string name="login_password_hint">Your password</string>
     <string name="login_save">Login</string>
     <string name="login_password_failed">Username or password are incorrect</string>
+    <string name="menu_login">Login</string>
+    <string name="menu_logout">Logout</string>
 </resources>
