@@ -5,12 +5,13 @@ import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.server.utils.HttpErrorHandler;
 import cat.aubricoc.xolis.server.utils.RequestBuilder;
+import cat.aubricoc.xolis.server.utils.UnauthorizedHandler;
 
 import java.util.List;
 
 public abstract class Repository<T> {
 
-    private static final HttpErrorHandler AUTH_NEEDED = new HttpErrorHandler(401, v -> Xolis.goToAuthentication());
+    private static final HttpErrorHandler AUTH_NEEDED = new UnauthorizedHandler();
 
     private final Class<T> type;
     private final String resourcePath;

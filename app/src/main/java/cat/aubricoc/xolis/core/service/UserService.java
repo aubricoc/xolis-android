@@ -6,12 +6,15 @@ import cat.aubricoc.xolis.core.enums.RegisterResult;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.core.utils.Preferences;
 import cat.aubricoc.xolis.server.model.User;
+import cat.aubricoc.xolis.server.model.UserAuthentication;
 import cat.aubricoc.xolis.server.repository.LoginRepository;
+import cat.aubricoc.xolis.server.repository.OauthAccessTokenRepository;
 import cat.aubricoc.xolis.server.repository.UsersRepository;
 import cat.aubricoc.xolis.server.utils.HttpErrorHandler;
 
 public class UserService {
 
+    private static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
     private static final UserService INSTANCE = new UserService();
 
     private UserService() {
@@ -41,7 +44,7 @@ public class UserService {
 
     private void login(User user, Callback<LoginResult> callback) {
         LoginRepository.getInstance().add(user, response -> {
-            storeAuthentication(response.getAccessToken(), response.getUsername());
+            storeAuthentication(response);
             callback.execute(LoginResult.OK);
         }, new HttpErrorHandler(401, error -> {
             clearAuthentication();
@@ -49,23 +52,40 @@ public class UserService {
         }));
     }
 
-    public User getAuthenticatedUser() {
+    public UserAuthentication getAuthenticatedUser() {
         String username = Xolis.getPreferences().getString(Preferences.AUTH_USERNAME);
         if (username == null) {
             return null;
         }
-        User user = new User();
+        UserAuthentication user = new UserAuthentication();
         user.setUsername(username);
+        user.setAccessToken(Xolis.getPreferences().getString(Preferences.ACCESS_TOKEN));
+        user.setRefreshToken(Xolis.getPreferences().getString(Preferences.REFRESH_TOKEN));
         return user;
     }
 
-    private void storeAuthentication(String accessToken, String username) {
-        Xolis.getPreferences().store(Preferences.ACCESS_TOKEN, accessToken);
-        Xolis.getPreferences().store(Preferences.AUTH_USERNAME, username);
+    private void storeAuthentication(UserAuthentication userAuthentication) {
+        Xolis.getPreferences().store(Preferences.ACCESS_TOKEN, userAuthentication.getAccessToken());
+        Xolis.getPreferences().store(Preferences.REFRESH_TOKEN, userAuthentication.getRefreshToken());
+        Xolis.getPreferences().store(Preferences.AUTH_USERNAME, userAuthentication.getUsername());
     }
 
     public void clearAuthentication() {
         Xolis.getPreferences().clear(Preferences.ACCESS_TOKEN);
+        Xolis.getPreferences().clear(Preferences.REFRESH_TOKEN);
         Xolis.getPreferences().clear(Preferences.AUTH_USERNAME);
+    }
+
+    public void refreshAuthentication(String refreshToken, Callback<Boolean> callback) {
+        UserAuthentication request = new UserAuthentication();
+        request.setRefreshToken(refreshToken);
+        request.setGrantType(GRANT_TYPE_REFRESH_TOKEN);
+        OauthAccessTokenRepository.getInstance().add(request, response -> {
+            storeAuthentication(response);
+            callback.execute(true);
+        }, new HttpErrorHandler(401, error -> {
+            clearAuthentication();
+            callback.execute(false);
+        }));
     }
 }

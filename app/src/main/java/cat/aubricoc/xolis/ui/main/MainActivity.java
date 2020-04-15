@@ -17,7 +17,7 @@ import cat.aubricoc.xolis.R;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.service.UserService;
 import cat.aubricoc.xolis.core.utils.Preferences;
-import cat.aubricoc.xolis.server.model.User;
+import cat.aubricoc.xolis.server.model.UserAuthentication;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import org.apache.commons.lang3.StringUtils;
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void prepareAuthData() {
-        User user = UserService.getInstance().getAuthenticatedUser();
+        UserAuthentication user = UserService.getInstance().getAuthenticatedUser();
         if (user == null) {
             menuLogin.setEnabled(true);
             menuLogout.setEnabled(false);
@@ -113,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
             menuLogin.setEnabled(false);
             menuLogout.setEnabled(true);
-            sidebarTitle.setText(user.getUsername());
-            sidebarSubtitle.setText(user.getEmail());
+            sidebarTitle.setText(getString(R.string.username, user.getUsername()));
+            sidebarSubtitle.setText(getString(R.string.user_profile));
         }
     }
 

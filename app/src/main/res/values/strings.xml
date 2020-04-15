@@ -26,4 +26,6 @@
     <string name="register_email_hint">Indicate your email address</string>
     <string name="register_confirm_email_hint">Repeat your email address</string>
     <string name="login_username_not_found">Username or email not found</string>
+    <string name="user_profile">User registered</string>
+    <string name="username">\@%1$s</string>
 </resources>

@@ -3,28 +3,27 @@ package cat.aubricoc.xolis.server.repository;
 import android.util.Log;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Callback;
-import cat.aubricoc.xolis.server.model.User;
 import cat.aubricoc.xolis.server.model.UserAuthentication;
 import cat.aubricoc.xolis.server.utils.HttpErrorHandler;
 import cat.aubricoc.xolis.server.utils.RequestBuilder;
 
-public class LoginRepository {
+public class OauthAccessTokenRepository {
 
-    private static final LoginRepository INSTANCE = new LoginRepository();
-    private static final String RESOURCE = "/login";
+    private static final OauthAccessTokenRepository INSTANCE = new OauthAccessTokenRepository();
+    private static final String RESOURCE = "/oauth/access_token";
 
-    private LoginRepository() {
+    private OauthAccessTokenRepository() {
         super();
     }
 
-    public static LoginRepository getInstance() {
+    public static OauthAccessTokenRepository getInstance() {
         return INSTANCE;
     }
 
-    public void add(User user, Callback<UserAuthentication> callback, HttpErrorHandler errorHandler) {
-        Log.i(Xolis.TAG, "Call to login...");
+    public void add(UserAuthentication userAuthentication, Callback<UserAuthentication> callback, HttpErrorHandler errorHandler) {
+        Log.i(Xolis.TAG, "Call to refresh token...");
         RequestBuilder.newPostRequest(RESOURCE, UserAuthentication.class)
-                .body(user)
+                .body(userAuthentication)
                 .callback(callback::execute)
                 .errorHandler(errorHandler)
                 .execute();
