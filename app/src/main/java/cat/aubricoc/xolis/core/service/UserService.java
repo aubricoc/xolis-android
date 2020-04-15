@@ -1,6 +1,7 @@
 package cat.aubricoc.xolis.core.service;
 
 import cat.aubricoc.xolis.Xolis;
+import cat.aubricoc.xolis.core.enums.LoginResult;
 import cat.aubricoc.xolis.core.enums.RegisterResult;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.core.utils.Preferences;
@@ -21,30 +22,31 @@ public class UserService {
         return INSTANCE;
     }
 
-    public void register(String username, String password, Callback<RegisterResult> callback) {
+    public void register(String username, String email, String password, Callback<RegisterResult> callback) {
         User user = new User();
         user.setUsername(username);
+        user.setEmail(email);
         user.setPassword(password);
         UsersRepository.getInstance().add(user,
-                v -> login(user, logged -> callback.execute(Boolean.TRUE.equals(logged) ? RegisterResult.OK : RegisterResult.LOGIN_FAILED)),
-                new HttpErrorHandler(409, v -> callback.execute(RegisterResult.USERNAME_CONFLICT)));
+                v -> login(user, loginResult -> callback.execute(LoginResult.OK == loginResult ? RegisterResult.OK : RegisterResult.LOGIN_FAILED)),
+                new HttpErrorHandler(409, error -> callback.execute(RegisterResult.getByConflictField(error.getField()))));
     }
 
-    public void login(String username, String password, Callback<Boolean> callback) {
+    public void login(String username, String password, Callback<LoginResult> callback) {
         User user = new User();
         user.setUsername(username);
         user.setPassword(password);
         login(user, callback);
     }
 
-    private void login(User user, Callback<Boolean> callback) {
+    private void login(User user, Callback<LoginResult> callback) {
         LoginRepository.getInstance().add(user, response -> {
             storeAuthentication(response.getAccessToken(), response.getUsername());
-            callback.execute(true);
-        }, v -> {
+            callback.execute(LoginResult.OK);
+        }, new HttpErrorHandler(401, error -> {
             clearAuthentication();
-            callback.execute(false);
-        });
+            callback.execute(LoginResult.getByErrorMessage(error.getMessage()));
+        }));
     }
 
     public User getAuthenticatedUser() {

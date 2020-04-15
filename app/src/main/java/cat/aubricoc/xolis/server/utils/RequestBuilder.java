@@ -22,8 +22,7 @@ import java.util.Map;
 
 public class RequestBuilder<T> {
 
-    public static final Gson GSON = new Gson();
-
+    private final Gson gson;
     private final int method;
     private final String url;
     private final Type type;
@@ -32,10 +31,11 @@ public class RequestBuilder<T> {
     private Response.Listener<T> callback;
 
     private RequestBuilder(int method, String url, Type type) {
+        this.gson = new Gson();
         this.method = method;
         this.url = Xolis.getServerUrl() + url;
         this.type = type;
-        this.errorListener = new HttpErrorListener();
+        this.errorListener = new HttpErrorListener(gson);
     }
 
     public static <V> RequestBuilder<V> newGetObjectRequest(String urlPath, Class<V> type) {
@@ -78,7 +78,7 @@ public class RequestBuilder<T> {
         if (body == null) {
             return null;
         }
-        return GSON.toJson(body);
+        return gson.toJson(body);
     }
 
     private class GsonRequest extends JsonRequest<T> {
@@ -91,7 +91,7 @@ public class RequestBuilder<T> {
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try {
                 String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
-                T object = GSON.fromJson(jsonString, type);
+                T object = gson.fromJson(jsonString, type);
                 return Response.success(object, HttpHeaderParser.parseCacheHeaders(response));
             } catch (UnsupportedEncodingException | JsonParseException e) {
                 return Response.error(new ParseError(e));

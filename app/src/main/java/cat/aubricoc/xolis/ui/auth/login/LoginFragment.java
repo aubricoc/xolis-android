@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import cat.aubricoc.xolis.R;
+import cat.aubricoc.xolis.core.enums.LoginResult;
 import cat.aubricoc.xolis.core.service.UserService;
 import cat.aubricoc.xolis.ui.auth.AuthenticationActivity;
 import cat.aubricoc.xolis.ui.utils.FormValidator;
@@ -42,12 +43,20 @@ public class LoginFragment extends Fragment {
         UserService.getInstance().login(username, password, this::processLoginResult);
     }
 
-    private void processLoginResult(boolean result) {
-        AuthenticationActivity activity = (AuthenticationActivity) getActivity();
-        if (result) {
-            Objects.requireNonNull(activity).finish();
-        } else {
-            passwordField.setError(getString(R.string.login_password_failed));
+    private void processLoginResult(LoginResult result) {
+        switch (result) {
+            case OK:
+                AuthenticationActivity activity = (AuthenticationActivity) getActivity();
+                Objects.requireNonNull(activity).finish();
+                break;
+            case USER_NOT_FOUND:
+                usernameField.setError(getString(R.string.login_username_not_found));
+                break;
+            case PASSWORD_INCORRECT:
+                passwordField.setError(getString(R.string.login_password_incorrect));
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + result);
         }
     }
 }

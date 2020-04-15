@@ -21,12 +21,12 @@ public class LoginRepository {
         return INSTANCE;
     }
 
-    public void add(User user, Callback<LoginSuccess> callback, Callback<Void> noLoggedCallback) {
+    public void add(User user, Callback<LoginSuccess> callback, HttpErrorHandler errorHandler) {
         Log.i(Xolis.TAG, "Call to login...");
         RequestBuilder.newPostRequest(RESOURCE, LoginSuccess.class)
                 .body(user)
                 .callback(callback::execute)
-                .errorHandler(new HttpErrorHandler(401, noLoggedCallback))
+                .errorHandler(errorHandler)
                 .execute();
     }
 }

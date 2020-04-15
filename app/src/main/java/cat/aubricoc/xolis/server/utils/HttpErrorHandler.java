@@ -1,13 +1,14 @@
 package cat.aubricoc.xolis.server.utils;
 
 import cat.aubricoc.xolis.core.utils.Callback;
+import cat.aubricoc.xolis.server.model.HttpError;
 
 public class HttpErrorHandler {
 
     private final int statusCode;
-    private final Callback<Void> callback;
+    private final Callback<HttpError> callback;
 
-    public HttpErrorHandler(int statusCode, Callback<Void> callback) {
+    public HttpErrorHandler(int statusCode, Callback<HttpError> callback) {
         this.statusCode = statusCode;
         this.callback = callback;
     }
@@ -16,7 +17,7 @@ public class HttpErrorHandler {
         return statusCode == this.statusCode;
     }
 
-    public void execute() {
-        callback.execute(null);
+    public void execute(HttpError httpError) {
+        callback.execute(httpError);
     }
 }

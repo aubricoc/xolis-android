@@ -12,7 +12,10 @@ import cat.aubricoc.xolis.core.service.UserService;
 import cat.aubricoc.xolis.ui.auth.AuthenticationActivity;
 import cat.aubricoc.xolis.ui.utils.FormValidator;
 import com.google.android.material.textfield.TextInputEditText;
+import com.mobsandgeeks.saripaar.annotation.ConfirmEmail;
 import com.mobsandgeeks.saripaar.annotation.ConfirmPassword;
+import com.mobsandgeeks.saripaar.annotation.Email;
+import com.mobsandgeeks.saripaar.annotation.Length;
 import com.mobsandgeeks.saripaar.annotation.NotEmpty;
 import com.mobsandgeeks.saripaar.annotation.Password;
 import com.mobsandgeeks.saripaar.annotation.Pattern;
@@ -23,9 +26,19 @@ public class RegisterFragment extends Fragment {
 
     @NotEmpty
     @Pattern(regex = "^[a-zA-Z0-9_]*$", messageResId = R.string.register_username_invalid)
+    @Length(max = 32)
     private TextInputEditText usernameField;
 
-    @Password(scheme = Password.Scheme.ANY, min = 1)
+    @NotEmpty
+    @Email
+    @Length(max = 64)
+    private TextInputEditText emailField;
+
+    @ConfirmEmail
+    private TextInputEditText confirmEmailField;
+
+    @Password(scheme = Password.Scheme.ANY, min = 4)
+    @Length(max = 16)
     private TextInputEditText passwordField;
 
     @ConfirmPassword
@@ -35,6 +48,8 @@ public class RegisterFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_register, container, false);
         usernameField = root.findViewById(R.id.register_username);
+        emailField = root.findViewById(R.id.register_email);
+        confirmEmailField = root.findViewById(R.id.register_confirm_email);
         passwordField = root.findViewById(R.id.register_password);
         confirmPasswordField = root.findViewById(R.id.register_confirm_password);
 
@@ -46,8 +61,9 @@ public class RegisterFragment extends Fragment {
 
     private void register() {
         String username = Objects.requireNonNull(usernameField.getText()).toString();
+        String email = Objects.requireNonNull(emailField.getText()).toString();
         String password = Objects.requireNonNull(passwordField.getText()).toString();
-        UserService.getInstance().register(username, password, this::processRegisterResult);
+        UserService.getInstance().register(username, email, password, this::processRegisterResult);
     }
 
     private void processRegisterResult(RegisterResult result) {
@@ -61,6 +77,9 @@ public class RegisterFragment extends Fragment {
                 break;
             case USERNAME_CONFLICT:
                 usernameField.setError(getString(R.string.register_username_already_used));
+                break;
+            case EMAIL_CONFLICT:
+                emailField.setError(getString(R.string.register_email_already_used));
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + result);
