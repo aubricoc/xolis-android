@@ -17,7 +17,7 @@ public class HttpErrorHandler {
         return statusCode == this.statusCode;
     }
 
-    public void execute(HttpError httpError) {
-        callback.execute(httpError);
+    public void execute(HttpError response) {
+        callback.execute(response);
     }
 }

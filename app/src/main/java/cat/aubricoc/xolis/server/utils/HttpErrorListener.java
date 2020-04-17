@@ -11,12 +11,14 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HttpErrorListener implements Response.ErrorListener {
+public class HttpErrorListener<T> implements Response.ErrorListener {
 
+    private final RequestBuilder<T> request;
     private final Gson gson;
     private final List<HttpErrorHandler> handlers;
 
-    public HttpErrorListener(Gson gson) {
+    public HttpErrorListener(RequestBuilder<T> request, Gson gson) {
+        this.request = request;
         this.gson = gson;
         this.handlers = new ArrayList<>();
     }
@@ -28,6 +30,7 @@ public class HttpErrorListener implements Response.ErrorListener {
     @Override
     public void onErrorResponse(VolleyError error) {
         NetworkResponse networkResponse = error.networkResponse;
+        Log.i(Xolis.TAG, "Call to " + request.getEndpoint() + "...KO");
         if (networkResponse == null) {
             throw new IllegalStateException("Unknown error on request", error);
         }
@@ -35,11 +38,21 @@ public class HttpErrorListener implements Response.ErrorListener {
         Log.e(Xolis.TAG, "Request failed (" + statusCode + "): " + error.getMessage());
         for (HttpErrorHandler handler : handlers) {
             if (handler.canHandle(statusCode)) {
-                HttpError httpError = gson.fromJson(new String(networkResponse.data), HttpError.class);
-                handler.execute(httpError);
+                handler.execute(buildHttpError(networkResponse.data));
                 return;
             }
         }
         throw new IllegalStateException("Unknown status code " + statusCode);
+    }
+
+    private HttpError buildHttpError(byte[] responseBody) {
+        HttpError error;
+        if (responseBody == null || responseBody.length == 0) {
+            error = new HttpError();
+        } else {
+            error = gson.fromJson(new String(responseBody), HttpError.class);
+        }
+        error.setRetry(v -> request.execute());
+        return error;
     }
 }

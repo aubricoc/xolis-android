@@ -1,7 +1,5 @@
 package cat.aubricoc.xolis.server.repository;
 
-import android.util.Log;
-import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.server.model.UserAuthentication;
 import cat.aubricoc.xolis.server.utils.HttpErrorHandler;
@@ -21,7 +19,6 @@ public class OauthAccessTokenRepository {
     }
 
     public void add(UserAuthentication userAuthentication, Callback<UserAuthentication> callback, HttpErrorHandler errorHandler) {
-        Log.i(Xolis.TAG, "Call to refresh token...");
         RequestBuilder.newPostRequest(RESOURCE, UserAuthentication.class)
                 .body(userAuthentication)
                 .callback(callback::execute)

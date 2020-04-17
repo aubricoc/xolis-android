@@ -1,7 +1,5 @@
 package cat.aubricoc.xolis.server.repository;
 
-import android.util.Log;
-import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Callback;
 import cat.aubricoc.xolis.server.model.User;
 import cat.aubricoc.xolis.server.model.UserAuthentication;
@@ -22,7 +20,6 @@ public class LoginRepository {
     }
 
     public void add(User user, Callback<UserAuthentication> callback, HttpErrorHandler errorHandler) {
-        Log.i(Xolis.TAG, "Call to login...");
         RequestBuilder.newPostRequest(RESOURCE, UserAuthentication.class)
                 .body(user)
                 .callback(callback::execute)

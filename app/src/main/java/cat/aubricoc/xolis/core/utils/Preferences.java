@@ -19,7 +19,9 @@ public class Preferences {
     }
 
     public void clear(String key) {
-        store(key, null, null);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.remove(key);
+        editor.apply();
     }
 
     public String getString(String key) {
@@ -32,20 +34,18 @@ public class Preferences {
     }
 
     public void store(String key, String value) {
-        store(key, value, editor -> editor.putString(key, value));
+        store(value, editor -> editor.putString(key, value));
     }
 
     public void store(String key, Integer value) {
-        store(key, value, editor -> editor.putInt(key, value));
+        store(value, editor -> editor.putInt(key, value));
     }
 
-    private <T> void store(String key, T value, Callback<SharedPreferences.Editor> editorConsumer) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        if (value == null) {
-            editor.remove(key);
-        } else {
+    private <T> void store(T value, Callback<SharedPreferences.Editor> editorConsumer) {
+        if (value != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
             editorConsumer.execute(editor);
+            editor.apply();
         }
-        editor.apply();
     }
 }

@@ -83,9 +83,6 @@ public class UserService {
         OauthAccessTokenRepository.getInstance().add(request, response -> {
             storeAuthentication(response);
             callback.execute(true);
-        }, new HttpErrorHandler(401, error -> {
-            clearAuthentication();
-            callback.execute(false);
-        }));
+        }, new HttpErrorHandler(401, error -> callback.execute(false)));
     }
 }

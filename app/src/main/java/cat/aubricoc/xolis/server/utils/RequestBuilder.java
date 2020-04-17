@@ -1,5 +1,6 @@
 package cat.aubricoc.xolis.server.utils;
 
+import android.util.Log;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Preferences;
 import com.android.volley.AuthFailureError;
@@ -23,35 +24,41 @@ import java.util.Map;
 public class RequestBuilder<T> {
 
     private final Gson gson;
-    private final int method;
+    private final String endpoint;
+    private final HttpMethod method;
     private final String url;
     private final Type type;
-    private final HttpErrorListener errorListener;
+    private final HttpErrorListener<T> errorListener;
     private Object body;
     private Response.Listener<T> callback;
 
-    private RequestBuilder(int method, String url, Type type) {
+    private RequestBuilder(HttpMethod method, String url, Type type) {
         this.gson = new Gson();
+        this.endpoint = method + " " + url;
         this.method = method;
         this.url = Xolis.getServerUrl() + url;
         this.type = type;
-        this.errorListener = new HttpErrorListener(gson);
+        this.errorListener = new HttpErrorListener<>(this, gson);
     }
 
     public static <V> RequestBuilder<V> newGetObjectRequest(String urlPath, Class<V> type) {
-        return new RequestBuilder<>(Request.Method.GET, urlPath, TypeToken.get(type).getType());
+        return new RequestBuilder<>(HttpMethod.GET, urlPath, TypeToken.get(type).getType());
     }
 
     public static <V> RequestBuilder<List<V>> newGetListRequest(String urlPath, Class<V> type) {
-        return new RequestBuilder<>(Request.Method.GET, urlPath, TypeToken.getParameterized(List.class, type).getType());
+        return new RequestBuilder<>(HttpMethod.GET, urlPath, TypeToken.getParameterized(List.class, type).getType());
     }
 
     public static RequestBuilder<Void> newPostRequest(String urlPath) {
-        return new RequestBuilder<>(Request.Method.POST, urlPath, null);
+        return new RequestBuilder<>(HttpMethod.POST, urlPath, null);
     }
 
     public static <V> RequestBuilder<V> newPostRequest(String urlPath, Class<V> type) {
-        return new RequestBuilder<>(Request.Method.POST, urlPath, TypeToken.get(type).getType());
+        return new RequestBuilder<>(HttpMethod.POST, urlPath, TypeToken.get(type).getType());
+    }
+
+    public String getEndpoint() {
+        return endpoint;
     }
 
     public RequestBuilder<T> body(Object body) {
@@ -70,6 +77,7 @@ public class RequestBuilder<T> {
     }
 
     public void execute() {
+        Log.i(Xolis.TAG, "Call to " + endpoint + "...");
         GsonRequest request = new GsonRequest(parseBody());
         Xolis.getRequestQueue().add(request);
     }
@@ -81,15 +89,27 @@ public class RequestBuilder<T> {
         return gson.toJson(body);
     }
 
+    private enum HttpMethod {
+        GET(Request.Method.GET),
+        POST(Request.Method.POST);
+
+        private final int id;
+
+        HttpMethod(int id) {
+            this.id = id;
+        }
+    }
+
     private class GsonRequest extends JsonRequest<T> {
 
         private GsonRequest(String requestBody) {
-            super(method, url, requestBody, callback, errorListener);
+            super(method.id, url, requestBody, callback, errorListener);
         }
 
         @Override
         protected Response<T> parseNetworkResponse(NetworkResponse response) {
             try {
+                Log.i(Xolis.TAG, "Call to " + endpoint + "...OK");
                 String jsonString = new String(response.data, HttpHeaderParser.parseCharset(response.headers, PROTOCOL_CHARSET));
                 T object = gson.fromJson(jsonString, type);
                 return Response.success(object, HttpHeaderParser.parseCacheHeaders(response));
