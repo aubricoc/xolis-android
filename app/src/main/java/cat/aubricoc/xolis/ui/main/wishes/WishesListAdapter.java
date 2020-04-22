@@ -27,6 +27,7 @@ public class WishesListAdapter extends RecyclerView.Adapter<WishesListAdapter.Vi
     public void onBindViewHolder(ViewHolder holder, int position) {
         Wish wish = wishes.get(position);
         holder.name.setText(wish.getName());
+        holder.user.setText(wish.getUser().getUsername());
     }
 
     @Override
@@ -41,10 +42,12 @@ public class WishesListAdapter extends RecyclerView.Adapter<WishesListAdapter.Vi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView name;
+        private final TextView user;
 
         private ViewHolder(View view) {
             super(view);
-            name = view.findViewById(R.id.create_wish_name);
+            name = view.findViewById(R.id.wish_name);
+            user = view.findViewById(R.id.wish_user);
         }
     }
 }

@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import cat.aubricoc.xolis.R;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.service.WishService;
@@ -22,7 +23,7 @@ public class WishesFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_wishes, container, false);
+        SwipeRefreshLayout root = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_wishes, container, false);
 
         model = new ViewModelProvider(this).get(WishesViewModel.class);
 
@@ -34,7 +35,9 @@ public class WishesFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         model.getWishes().observe(getViewLifecycleOwner(), adapter::setWishes);
+        model.getLoading().observe(getViewLifecycleOwner(), root::setRefreshing);
 
+        root.setOnRefreshListener(this::loadWishes);
         root.findViewById(R.id.add_wish).setOnClickListener(view -> createNewWish());
 
         return root;
@@ -44,7 +47,15 @@ public class WishesFragment extends Fragment {
     public void onResume() {
         super.onResume();
         Xolis.getPreferences().store(Preferences.LAST_MAIN_DESTINATION, R.id.navigation_wishes);
-        WishService.getInstance().getWishes(model::setWishes);
+        loadWishes();
+    }
+
+    private void loadWishes() {
+        model.setLoading(true);
+        WishService.getInstance().getWishes(wishes -> {
+            model.setWishes(wishes);
+            model.setLoading(false);
+        });
     }
 
     private void createNewWish() {
