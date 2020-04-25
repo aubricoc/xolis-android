@@ -1,5 +1,6 @@
 package cat.aubricoc.xolis.server.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 import cat.aubricoc.xolis.Xolis;
 import cat.aubricoc.xolis.core.utils.Preferences;
@@ -16,6 +17,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,7 @@ public class RequestBuilder<T> {
     private final String url;
     private final Type type;
     private final HttpErrorListener<T> errorListener;
+    private final Map<String, String> params;
     private Object body;
     private Response.Listener<T> callback;
 
@@ -39,6 +43,7 @@ public class RequestBuilder<T> {
         this.url = Xolis.getServerUrl() + url;
         this.type = type;
         this.errorListener = new HttpErrorListener<>(this, gson);
+        this.params = new HashMap<>();
     }
 
     public static <V> RequestBuilder<V> newGetObjectRequest(String urlPath, Class<V> type) {
@@ -61,6 +66,11 @@ public class RequestBuilder<T> {
         return endpoint;
     }
 
+    public RequestBuilder<T> param(String name, String value) {
+        params.put(name, value);
+        return this;
+    }
+
     public RequestBuilder<T> body(Object body) {
         this.body = body;
         return this;
@@ -78,8 +88,37 @@ public class RequestBuilder<T> {
 
     public void execute() {
         Log.i(Xolis.TAG, "Call to " + endpoint + "...");
-        GsonRequest request = new GsonRequest(parseBody());
+        GsonRequest request = new GsonRequest(prepareUrlWithQueryString(), parseBody());
         Xolis.getRequestQueue().add(request);
+    }
+
+    private String prepareUrlWithQueryString() {
+        if (params.isEmpty()) {
+            return url;
+        }
+        return url + "?" + prepareQueryString();
+    }
+
+    private String prepareQueryString() {
+        return TextUtils.join("&", prepareParams(params));
+    }
+
+    private List<String> prepareParams(Map<String, String> params) {
+        List<String> list = new ArrayList<>();
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String name = encodeUrlParam(entry.getKey());
+            String value = encodeUrlParam(entry.getValue());
+            list.add(name + "=" + value);
+        }
+        return list;
+    }
+
+    private String encodeUrlParam(String value) {
+        try {
+            return URLEncoder.encode(value, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("Encoding failed", e);
+        }
     }
 
     private String parseBody() {
@@ -102,8 +141,8 @@ public class RequestBuilder<T> {
 
     private class GsonRequest extends JsonRequest<T> {
 
-        private GsonRequest(String requestBody) {
-            super(method.id, url, requestBody, callback, errorListener);
+        private GsonRequest(String urlWithQueryString, String requestBody) {
+            super(method.id, urlWithQueryString, requestBody, callback, errorListener);
         }
 
         @Override

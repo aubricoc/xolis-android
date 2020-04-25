@@ -17,16 +17,19 @@ import cat.aubricoc.xolis.core.service.WishService;
 import cat.aubricoc.xolis.core.utils.Preferences;
 import cat.aubricoc.xolis.ui.main.wishes.create.CreateWishActivity;
 
+import java.util.Date;
+
 public class WishesFragment extends Fragment {
 
     private WishesViewModel model;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        SwipeRefreshLayout root = (SwipeRefreshLayout) inflater.inflate(R.layout.fragment_wishes, container, false);
+        View root = inflater.inflate(R.layout.fragment_wishes, container, false);
 
         model = new ViewModelProvider(this).get(WishesViewModel.class);
 
+        SwipeRefreshLayout refreshLayout = root.findViewById(R.id.refresh_wish_list_container);
         RecyclerView recyclerView = root.findViewById(R.id.wish_list);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -35,10 +38,11 @@ public class WishesFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         model.getWishes().observe(getViewLifecycleOwner(), adapter::setWishes);
-        model.getLoading().observe(getViewLifecycleOwner(), root::setRefreshing);
+        model.getLoading().observe(getViewLifecycleOwner(), refreshLayout::setRefreshing);
 
-        root.setOnRefreshListener(this::loadWishes);
+        refreshLayout.setOnRefreshListener(this::loadWishes);
         root.findViewById(R.id.add_wish).setOnClickListener(view -> createNewWish());
+        initScrollListener(recyclerView, refreshLayout, adapter);
 
         return root;
     }
@@ -58,7 +62,34 @@ public class WishesFragment extends Fragment {
         });
     }
 
+    private void loadMoreWishes() {
+        Date nextWishesLoadCreatedTo = model.getNextWishesLoadCreatedTo();
+        if (nextWishesLoadCreatedTo != null) {
+            model.setLoading(true);
+            WishService.getInstance().getMoreWishes(nextWishesLoadCreatedTo, wishes -> {
+                model.addWishes(wishes);
+                model.setLoading(false);
+            });
+        }
+    }
+
     private void createNewWish() {
         startActivity(new Intent(getContext(), CreateWishActivity.class));
+    }
+
+    private void initScrollListener(RecyclerView recyclerView, SwipeRefreshLayout refreshLayout, WishesListAdapter adapter) {
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                if (!refreshLayout.isRefreshing() &&
+                        linearLayoutManager != null &&
+                        linearLayoutManager.findLastCompletelyVisibleItemPosition() == adapter.getItemCount() - 1) {
+                    loadMoreWishes();
+                }
+            }
+        });
     }
 }

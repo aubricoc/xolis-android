@@ -27,10 +27,13 @@ public abstract class Repository<T> {
     }
 
     public void find(Callback<List<T>> callback, HttpErrorHandler... errorHandlers) {
-        RequestBuilder.newGetListRequest(resourcePath, type)
+        prepareFind(callback, errorHandlers).execute();
+    }
+
+    protected RequestBuilder<List<T>> prepareFind(Callback<List<T>> callback, HttpErrorHandler[] errorHandlers) {
+        return RequestBuilder.newGetListRequest(resourcePath, type)
                 .callback(callback::execute)
                 .errorHandler(new UnauthorizedHandler())
-                .errorHandler(errorHandlers)
-                .execute();
+                .errorHandler(errorHandlers);
     }
 }
